@@ -83,6 +83,17 @@ RUN ARCH="${TARGETARCH:-amd64}" && \
 # Virtual Environment vom Builder kopieren
 COPY --from=builder /app/.venv /app/.venv
 
+# Drop pip from both interpreters, after the OpenStack CLI above has been
+# installed with it. pip ships a CycloneDX SBOM of its vendored libraries at
+# `pip/_vendor/bom.cdx.json`, and Trivy reads that as if those libraries were
+# installed — reporting versions that exist only inside pip and never run.
+# Upgrading pip does not help; those are the versions current pip vendors.
+#
+# Both paths are spelled out because PATH puts the venv first, so a bare
+# `python` would only ever reach one of the two.
+RUN /app/.venv/bin/python -m pip uninstall -y pip && \
+    /usr/local/bin/python -m pip uninstall -y pip
+
 # Application Code kopieren
 COPY app/ ./app/
 
