@@ -82,3 +82,36 @@ CVE-2026-42506
 # advisory. Vendored into Packer and Terraform; available once HashiCorp
 # rebuilds against the patched grpc. Nothing to fix on our side.
 GHSA-hrxh-6v49-42gf
+
+# ---------------------------------------------------------------------------
+# Second round of the same backlog, added 2026-09-05.
+#
+# Checked before suppressing: Terraform 1.15.5 -> 1.15.9 moves Go 1.25.9 to
+# 1.25.10, and 1.16.1 to 1.26.4; Packer 1.15.3 -> 1.16.0 moves it to 1.26.3.
+# These advisories need Go 1.25.13 / 1.26.6, so no released build clears them.
+# Raising the versions is worth doing on its own merits — Terraform runs the
+# App templates, so it belongs in a change we can verify — but it would not
+# make these entries unnecessary.
+#
+# Go stdlib (fixed in 1.25.13 / 1.26.6 / 1.27.0-rc.3):
+CVE-2026-33818
+CVE-2026-56853
+CVE-2026-56858
+CVE-2026-56859
+CVE-2026-56860
+CVE-2026-56862
+# golang.org/x/net (fixed in 0.56.0), x/text (0.39.0), x/mod (0.40.0):
+CVE-2026-46600
+CVE-2026-56852
+CVE-2026-56864
+CVE-2026-56865
+# google.golang.org/grpc (fixed in 1.83.1):
+CVE-2026-84304
+# go-git, vendored into Packer (fixed in 5.19.2):
+CVE-2026-71556
+# CVE-2026-56854 is the one CRITICAL here: golang.org/x/crypto/ssh fails to
+# enforce source-address restrictions from authorized_keys. That is a server
+# side check, and both binaries use SSH only as a client — Packer to reach the
+# machine it provisions, Terraform in its ssh provisioner. Revisit if either
+# ever runs an SSH server.
+CVE-2026-56854
