@@ -115,3 +115,7 @@ CVE-2026-71556
 # machine it provisions, Terraform in its ssh provisioner. Revisit if either
 # ever runs an SSH server.
 CVE-2026-56854
+
+# google.golang.org/grpc (fixed in 1.82.2 / 1.83.2), checked 2026-09-17:
+# Terraform 1.16.3 already ships 1.83.2, Packer 1.16.0 still ships 1.82.1.
+CVE-2026-84445
