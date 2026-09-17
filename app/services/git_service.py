@@ -8,6 +8,7 @@ from pathlib import Path
 import git
 
 from ..config import settings
+from . import github_app
 
 logger = logging.getLogger(__name__)
 
@@ -39,19 +40,24 @@ class GitService:
 
         return None
 
-    def _get_authenticated_url(self, git_url: str) -> str:
-        """Convert Git URL to HTTPS format with token authentication."""
-        url = git_url
-        if url.startswith("git@"):
-            # Convert SSH to HTTPS: git@github.com:owner/repo.git -> https://token@github.com/owner/repo.git
-            url = url.replace(":", "/").replace("git@", f"https://{self.token}@")
-        elif url.startswith("https://"):
-            # Add token to HTTPS URL
-            parsed = self._parse_git_url(url)
-            if parsed:
-                url = f"https://{self.token}@{parsed['host']}/{parsed['owner']}/{parsed['repo']}.git"
+    def _credentials_for(self, parsed: dict) -> str:
+        """Return the ``user:token@`` part of the clone URL, or "" for an anonymous clone."""
+        if parsed["host"] == "github.com" and github_app.is_configured():
+            token = github_app.installation_token(parsed["owner"], parsed["repo"])
+            if token:
+                # Installation tokens only work with this fixed username.
+                return f"x-access-token:{token}@"
+            logger.info(f"GitHub App not installed on {parsed['owner']}/{parsed['repo']}")
+        return f"{self.token}@" if self.token else ""
 
-        return url
+    def _get_authenticated_url(self, git_url: str) -> str:
+        """Convert an SSH or HTTPS Git URL to HTTPS with credentials for its host."""
+        if not git_url.startswith(("git@", "https://")):
+            return git_url
+        parsed = self._parse_git_url(git_url)
+        if not parsed:
+            return git_url
+        return f"https://{self._credentials_for(parsed)}{parsed['host']}/{parsed['owner']}/{parsed['repo']}.git"
 
     def clone_release(self, git_url: str, tag: str, deployment_id: str) -> str:
         """

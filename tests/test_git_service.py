@@ -85,6 +85,48 @@ class TestGitServiceAuthentication:
         assert "@gitlab.com" in result
 
 
+class TestGitServiceGitHubApp:
+    """App token first, then GIT_ACCESS_TOKEN, then an anonymous clone."""
+
+    @patch("app.services.git_service.github_app")
+    def test_uses_installation_token_when_installed(self, mock_app, git_service):
+        mock_app.is_configured.return_value = True
+        mock_app.installation_token.return_value = "ghs_abc"
+
+        result = git_service._get_authenticated_url("https://github.com/owner/repo.git")
+
+        assert result == "https://x-access-token:ghs_abc@github.com/owner/repo.git"
+        mock_app.installation_token.assert_called_once_with("owner", "repo")
+
+    @patch("app.services.git_service.github_app")
+    def test_falls_back_to_token_when_not_installed(self, mock_app, git_service):
+        mock_app.is_configured.return_value = True
+        mock_app.installation_token.return_value = None
+
+        result = git_service._get_authenticated_url("https://github.com/owner/repo.git")
+
+        assert result == "https://test-token-123@github.com/owner/repo.git"
+
+    @patch("app.services.git_service.github_app")
+    def test_clones_anonymously_without_any_credentials(self, mock_app, git_service):
+        mock_app.is_configured.return_value = True
+        mock_app.installation_token.return_value = None
+        git_service.token = ""
+
+        result = git_service._get_authenticated_url("https://github.com/owner/repo.git")
+
+        assert result == "https://github.com/owner/repo.git"
+
+    @patch("app.services.git_service.github_app")
+    def test_other_hosts_never_ask_the_app(self, mock_app, git_service):
+        mock_app.is_configured.return_value = True
+
+        result = git_service._get_authenticated_url("https://gitlab.com/group/project.git")
+
+        assert result == "https://test-token-123@gitlab.com/group/project.git"
+        mock_app.installation_token.assert_not_called()
+
+
 class TestGitServiceCloning:
     """Test repository cloning functionality."""
 

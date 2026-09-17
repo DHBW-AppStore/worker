@@ -26,6 +26,9 @@ class Settings(BaseSettings):
 
     # Git
     GIT_ACCESS_TOKEN: str = ""
+    # GitHub App; the private key is the PEM, base64-encoded to fit on one .env line.
+    GITHUB_APP_ID: str = ""
+    GITHUB_APP_PRIVATE_KEY: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",
