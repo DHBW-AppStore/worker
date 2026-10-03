@@ -1,18 +1,18 @@
 # Worker
 
-[![Coverage](https://img.shields.io/endpoint?url=https://six7-click-n-deploy.github.io/worker/badge.json)](https://six7-click-n-deploy.github.io/worker/)
+[![Coverage](https://img.shields.io/endpoint?url=https://dhbw-appstore.github.io/worker/badge.json)](https://dhbw-appstore.github.io/worker/)
 
 Celery-Worker des App Stores. Konsumiert Deployment-Tasks aus RabbitMQ, klont das App-Repository, führt Packer + Terraform aus und provisioniert auf OpenStack.
 
 ## Setup
 
-Dieses Repository wird nicht eigenständig gestartet. Der Worker braucht RabbitMQ, Redis, die Postgres-tfstate-DB und vom Backend dispatchte Tasks — der gesamte Stack wird über das deployment-Repository hochgefahren. Vollständige Anleitung: [deployment/README.md](https://github.com/six7-click-n-deploy/deployment#readme).
+Dieses Repository wird nicht eigenständig gestartet. Der Worker braucht RabbitMQ, Redis, die Postgres-tfstate-DB und vom Backend dispatchte Tasks — der gesamte Stack wird über das deployment-Repository hochgefahren. Vollständige Anleitung: [deployment/README.md](https://github.com/DHBW-AppStore/deployment#readme).
 
 Voraussetzung für alle folgenden Befehle: `make dev-up` aus dem `deployment/`-Verzeichnis wurde ausgeführt und der Stack läuft.
 
 ## Entwicklung
 
-Alle `make`-Befehle werden aus dem `deployment/`-Verzeichnis des [deployment-Repos](https://github.com/six7-click-n-deploy/deployment) ausgeführt — dort liegt das Makefile.
+Alle `make`-Befehle werden aus dem `deployment/`-Verzeichnis des [deployment-Repos](https://github.com/DHBW-AppStore/deployment) ausgeführt — dort liegt das Makefile.
 
 ```bash
 # in app-store/deployment
@@ -78,5 +78,5 @@ Die `Failure`-Exception in `tasks.py` trägt strukturierte Fehlerdaten durch Cel
 
 ## Mehr
 
-- Architektur und projektübergreifende Doku: [.github-Repo](https://github.com/six7-click-n-deploy/.github)
-- Backend-Service: [backend-Repo](https://github.com/six7-click-n-deploy/backend)
+- Architektur und projektübergreifende Doku: [.github-Repo](https://github.com/DHBW-AppStore/.github)
+- Backend-Service: [backend-Repo](https://github.com/DHBW-AppStore/backend)
