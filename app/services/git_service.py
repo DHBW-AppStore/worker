@@ -43,7 +43,13 @@ class GitService:
     def _credentials_for(self, parsed: dict) -> str:
         """Return the ``user:token@`` part of the clone URL, or "" for an anonymous clone."""
         if parsed["host"] == "github.com" and github_app.is_configured():
-            token = github_app.installation_token(parsed["owner"], parsed["repo"])
+            try:
+                token = github_app.installation_token(parsed["owner"], parsed["repo"])
+            except Exception as e:
+                # The API is not on the critical path: a public repo clones without it,
+                # and a destroy must not fail because GitHub was slow for ten seconds.
+                logger.warning(f"GitHub App unreachable, cloning without its token: {e}")
+                token = None
             if token:
                 # Installation tokens only work with this fixed username.
                 return f"x-access-token:{token}@"

@@ -118,6 +118,16 @@ class TestGitServiceGitHubApp:
         assert result == "https://github.com/owner/repo.git"
 
     @patch("app.services.git_service.github_app")
+    def test_api_failure_falls_back_instead_of_raising(self, mock_app, git_service):
+        """A timeout at the GitHub API had stopped the clone, and with it a destroy."""
+        mock_app.is_configured.return_value = True
+        mock_app.installation_token.side_effect = TimeoutError("read timed out")
+
+        result = git_service._get_authenticated_url("https://github.com/owner/repo.git")
+
+        assert result == "https://test-token-123@github.com/owner/repo.git"
+
+    @patch("app.services.git_service.github_app")
     def test_other_hosts_never_ask_the_app(self, mock_app, git_service):
         mock_app.is_configured.return_value = True
 
